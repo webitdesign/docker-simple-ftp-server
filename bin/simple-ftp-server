@@ -34,9 +34,14 @@ def main():
     handler.banner = "pyftpdlib based ftpd ready."
 
     # Specify a masquerade address and the range of ports to use for
-    # passive connections.  Decomment in case you're behind a NAT.
-    # handler.masquerade_address = '151.25.42.11'
-    # handler.passive_ports = range(60000, 65535)
+    # passive connections.  Use in case you're behind a NAT.
+    if getenv('FTP_ADDRESS'):
+        handler.masquerade_address = environ['FTP_ADDRESS']
+    if getenv('FTP_PORTRANGE_LOW') and getenv('FTP_PORTRANGE_HIGH'):
+        handler.passive_ports = range(
+            int(environ['FTP_PORTRANGE_LOW']),
+            int(environ['FTP_PORTRANGE_HIGH'])
+        )
 
     # Instantiate FTP server class and listen on 0.0.0.0:2121
     address = ('', int(environ['FTP_PORT']))
