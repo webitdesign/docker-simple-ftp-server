@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-from os import environ
+from os import environ, getenv
 
 from pyftpdlib.authorizers import DummyAuthorizer
-from pyftpdlib.handlers import FTPHandler
+from pyftpdlib.handlers import TLS_FTPHandler, FTPHandler
 from pyftpdlib.servers import FTPServer
 
 
@@ -18,7 +18,16 @@ def main():
                         environ['FTP_ROOT'], perm='elradfmwM')
 
     # Instantiate FTP handler class
-    handler = FTPHandler
+    handler = None
+    if getenv('TLS_CERTFILE'):
+        handler = TLS_FTPHandler
+        handler.certfile = environ['TLS_CERTFILE']
+        if getenv('TLS_KEYFILE'):
+            handler.keyfile = environ['TLS_KEYFILE']
+        handler.tls_control_required = True
+        handler.tls_data_required = True
+    else:
+        handler = FTPHandler
     handler.authorizer = authorizer
 
     # Define a customized banner (string returned when client connects)
